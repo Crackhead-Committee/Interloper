@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // NEW input system
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 5f;
 
     [Header("Mouse Look")]
-    public float mouseSensitivity = 1.0f; // tweak to taste
+    public float mouseSensitivity = 1.0f;
     public Transform playerCamera;
 
     private Rigidbody rb;
@@ -24,7 +24,6 @@ public class PlayerController : MonoBehaviour
         rb.freezeRotation = true;
         Cursor.lockState = CursorLockMode.Locked;
 
-        // --- Move: WASD / Arrows / Gamepad left stick ---
         moveAction = new InputAction(name: "Move");
         var wasd = moveAction.AddCompositeBinding("2DVector");
         wasd.With("Up", "<Keyboard>/w");
@@ -56,10 +55,8 @@ public class PlayerController : MonoBehaviour
         float yaw = look.x;
         float pitch = look.y;
 
-        // Rotate body (yaw)
         transform.Rotate(Vector3.up * yaw);
 
-        // Rotate camera (pitch)
         xRotation -= pitch;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
         if (playerCamera != null)
