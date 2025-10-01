@@ -10,8 +10,8 @@ public class DialogueController : MonoBehaviour
     public bool IsActive { get; private set; }
 
     [Header("UI Refs")]
-    public CanvasGroup dialogueGroup;        // Panel CanvasGroup
-    public TextMeshProUGUI dialogueText;     // TMP text field
+    public CanvasGroup dialogueGroup;
+    public TextMeshProUGUI dialogueText;
 
     [Header("Input")]
     [Tooltip("Space/Enter/MouseLeft/Gamepad South to advance")]
@@ -29,15 +29,12 @@ public class DialogueController : MonoBehaviour
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
 
-        // Hide UI on start
         SetVisible(false);
 
-        // Input (no .inputactions asset needed)
         advanceAction = new InputAction("Advance");
         advanceAction.AddBinding("<Keyboard>/space");
         advanceAction.AddBinding("<Keyboard>/enter");
         advanceAction.AddBinding("<Mouse>/leftButton");
-        advanceAction.AddBinding("<Gamepad>/buttonSouth");
     }
 
     void OnEnable()  => advanceAction.Enable();
@@ -63,13 +60,12 @@ public class DialogueController : MonoBehaviour
         onFinished = onEnd;
 
         IsActive = true;
-        Time.timeScale = 1f; // keep running; we’ll just disable movement
-        Cursor.lockState = CursorLockMode.None; // optional: free cursor during dialogue
+        Time.timeScale = 1f;
+        Cursor.lockState = CursorLockMode.None;
 
         SetVisible(true);
         dialogueText.text = currentLines[index];
 
-        // Tell player movement to pause (if present)
         var mover = FindObjectOfType<PlayerController>();
         if (mover) mover.enabled = false;
     }
@@ -90,11 +86,9 @@ public class DialogueController : MonoBehaviour
         IsActive = false;
         SetVisible(false);
 
-        // Re-enable movement
         var mover = FindObjectOfType<PlayerController>();
         if (mover) mover.enabled = true;
 
-        // Lock cursor again if you want FPS look
         Cursor.lockState = CursorLockMode.Locked;
 
         onFinished?.Invoke();
