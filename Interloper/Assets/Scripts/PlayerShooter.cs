@@ -49,12 +49,22 @@ void FireOnce()
     else
         hitSomething = Physics.Raycast(ray, out hit, range, shootMask, QueryTriggerInteraction.Ignore);
 
-    if (!hitSomething) return;
+    if (!hitSomething)
+    {
+        Debug.Log("Missed — no shootable object hit.");
+        return;
+    }
 
     var dmg = hit.collider.GetComponentInParent<Damageable>();
     if (dmg != null)
     {
         dmg.TakeHit(damagePerShot);
+        Debug.Log($"Hit {hit.collider.name} at distance {hit.distance:F2}m.");
+    }
+    else
+    {
+        Debug.Log($"Hit {hit.collider.name} but it is not shootable.");
     }
 }
+
 }

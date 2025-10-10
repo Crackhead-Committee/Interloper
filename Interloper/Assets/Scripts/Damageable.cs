@@ -13,11 +13,18 @@ public class Damageable : MonoBehaviour
 
     int hits;
 
-    public void TakeHit(int amount = 1)
+public void TakeHit(int amount = 1)
+{
+    hits += amount;
+    int remaining = Mathf.Max(0, maxHits - hits);
+    Debug.Log($"{gameObject.name} was hit! Total hits: {hits}/{maxHits}. Remaining: {remaining}");
+
+    if (hits >= maxHits)
     {
-        hits += amount;
-        if (hits >= maxHits) Die();
+        Debug.Log($"{gameObject.name} destroyed!");
+        Die();
     }
+}
 
     void Die()
     {
