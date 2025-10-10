@@ -1,6 +1,7 @@
 using UnityEngine;
+using UnityEngine.AI;
 
-[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(Animator), typeof(NavMeshAgent))]
 public class EnemySimpleAI : MonoBehaviour
 {
     [Header("Target")]
@@ -10,10 +11,6 @@ public class EnemySimpleAI : MonoBehaviour
     public float detectRange = 12f;
     public float attackRange = 1.8f;
 
-    [Header("Movement")]
-    public float moveSpeed = 4f;
-    public float rotationSpeed = 8f;
-
     [Header("Attack")]
     public float attackCooldown = 1.0f;
     public float hitDelay = 0.4f;
@@ -22,49 +19,61 @@ public class EnemySimpleAI : MonoBehaviour
     static readonly int AttackID = Animator.StringToHash("Attack");
 
     Animator anim;
+    NavMeshAgent agent;
     float lastAttackTime = -999f;
 
     void Awake()
     {
         anim = GetComponent<Animator>();
+        agent = GetComponent<NavMeshAgent>();
+        agent.updateRotation = false;
+        agent.stoppingDistance = Mathf.Max(0.1f, attackRange * 0.95f);
+
         if (!target)
         {
             var p = GameObject.FindGameObjectWithTag("Player");
             if (p) target = p.transform;
         }
-        if (anim) anim.applyRootMotion = false;
     }
 
     void Update()
     {
-        if (!target) { anim.SetFloat(SpeedID, 0f); return; }
+        if (!target)
+        {
+            agent.isStopped = true;
+            anim.SetFloat(SpeedID, 0f);
+            return;
+        }
 
         float dist = Vector3.Distance(transform.position, target.position);
 
         if (dist > detectRange)
         {
+            agent.isStopped = true;
             anim.SetFloat(SpeedID, 0f);
             return;
         }
 
-        Vector3 to = target.position - transform.position;
-        to.y = 0f;
-        if (to.sqrMagnitude > 0.0001f)
+        bool inAttack = dist <= attackRange;
+        agent.isStopped = inAttack == true;
+
+        if (!agent.isStopped)
         {
-            Quaternion look = Quaternion.LookRotation(to);
-            transform.rotation = Quaternion.Slerp(transform.rotation, look, rotationSpeed * Time.deltaTime);
+            agent.SetDestination(target.position);
         }
 
-        if (dist > attackRange)
+        Vector3 to = target.position - transform.position; to.y = 0f;
+        if (to.sqrMagnitude > 0.0001f)
         {
-            anim.SetFloat(SpeedID, 1f);
-            transform.position += transform.forward * (moveSpeed * Time.deltaTime);
+            float turn = agent.angularSpeed * Mathf.Deg2Rad * Time.deltaTime;
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(to), turn);
         }
-        else
-        {
-            anim.SetFloat(SpeedID, 0f);
+
+        float move01 = Mathf.InverseLerp(0f, agent.speed, agent.velocity.magnitude);
+        anim.SetFloat(SpeedID, move01, 0.1f, Time.deltaTime);
+
+        if (inAttack)
             TryAttack();
-        }
     }
 
     void TryAttack()
@@ -74,7 +83,6 @@ public class EnemySimpleAI : MonoBehaviour
 
         anim.ResetTrigger(AttackID);
         anim.SetTrigger(AttackID);
-
         Invoke(nameof(DealDamageIfStillInRange), hitDelay);
     }
 
@@ -92,9 +100,7 @@ public class EnemySimpleAI : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = new Color(0,0,1,0.25f);
-        Gizmos.DrawWireSphere(transform.position, detectRange);
-        Gizmos.color = new Color(1,0,0,0.25f);
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        Gizmos.color = new Color(0,0,1,0.25f); Gizmos.DrawWireSphere(transform.position, detectRange);
+        Gizmos.color = new Color(1,0,0,0.25f); Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }
