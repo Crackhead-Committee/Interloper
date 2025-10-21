@@ -5,7 +5,7 @@ public class InteractRaycaster : MonoBehaviour
 {
     public Camera playerCamera;
     public float interactDistance = 3f;
-    public LayerMask interactMask = ~0; // everything by default
+    public LayerMask interactMask = ~0;
 
     private InputAction interactAction;
 
@@ -15,7 +15,6 @@ public class InteractRaycaster : MonoBehaviour
 
         interactAction = new InputAction("Interact");
         interactAction.AddBinding("<Keyboard>/e");
-        interactAction.AddBinding("<Gamepad>/buttonSouth"); // A/Cross
     }
 
     void OnEnable()  => interactAction.Enable();
@@ -24,16 +23,16 @@ public class InteractRaycaster : MonoBehaviour
     void Update()
     {
         if (DialogueController.Instance && DialogueController.Instance.IsActive)
-            return; // ignore interactions while talking
+            return;
 
         if (!interactAction.WasPerformedThisFrame()) return;
 
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, interactDistance, interactMask, QueryTriggerInteraction.Ignore))
         {
-            if (hit.collider.TryGetComponent<DialogueTrigger>(out var trigger))
+            if (hit.collider.TryGetComponent(out RadioDialogue radio))
             {
-                DialogueController.Instance.StartDialogue(trigger.lines);
+                radio.Interact();
             }
         }
     }

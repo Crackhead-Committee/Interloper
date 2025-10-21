@@ -14,7 +14,7 @@ public class DialogueController : MonoBehaviour
     public TextMeshProUGUI dialogueText;
 
     [Header("Input")]
-    [Tooltip("Space/Enter/MouseLeft/Gamepad South to advance")]
+    [Tooltip("Space/Enter/MouseLeft")]
     public float inputDebounce = 0.1f;
 
     private List<string> currentLines;
