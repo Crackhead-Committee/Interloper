@@ -2231,13 +2231,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'A Game Inspired by:
+  m_text: 'Made by:
 
-    Cry of Fear
+    Ellie Chypre
 
-    Half-life 2
-
-    Firewatch'
+    Luna Stappers'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a8c2451dea49d4b4da8790754ecda07e, type: 2}
   m_sharedMaterial: {fileID: 8768224473314509598, guid: a8c2451dea49d4b4da8790754ecda07e, type: 2}
