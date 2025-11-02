@@ -11,11 +11,11 @@ public class InteractRaycaster : MonoBehaviour
     public LayerMask interactMask = ~0;
 
     [Header("Prompt UI")]
-    public CanvasGroup promptGroup;   // panel CanvasGroup (alpha fades)
-    public Image promptIcon;          // optional
-    public TMP_Text promptText;       // e.g. "[E] Open"
+    public CanvasGroup promptGroup;
+    public Image promptIcon;
+    public TMP_Text promptText;
     public float fadeSpeed = 12f;
-    public Vector2 screenOffset = new Vector2(0, -80); // if you position via world-space later
+    public Vector2 screenOffset = new Vector2(0, -80);
 
     InputAction interactAction;
     Interactable current;
@@ -47,20 +47,16 @@ public class InteractRaycaster : MonoBehaviour
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (Physics.Raycast(ray, out var hit, 100f, interactMask, QueryTriggerInteraction.Ignore))
         {
-            // Prefer a proper Interactable component
             if (hit.collider.TryGetComponent(out Interactable it))
             {
                 float maxDist = it.maxDistance > 0 ? it.maxDistance : defaultDistance;
                 float d = Vector3.Distance(playerCamera.transform.position, hit.point);
                 if (d <= maxDist) { found = it; foundDist = d; }
             }
-            // Backward-compat: your old RadioDialogue targets still work without adding Interactable
             else if (hit.collider.TryGetComponent(out RadioDialogue radio))
             {
-                // Create a transient prompt using defaults
-                // (Better: add Interactable to those objects and wire onInteract to radio.Interact)
-                found = null; // keep current null; show a generic prompt instead
-                if (promptText) promptText.text = "[E] Interact";
+                found = null;
+                if (promptText) promptText.text = "";
                 if (promptIcon) promptIcon.sprite = null;
                 Fade(1f);
 

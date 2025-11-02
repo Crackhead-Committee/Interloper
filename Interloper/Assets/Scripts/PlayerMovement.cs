@@ -98,6 +98,7 @@ public class PlayerController : MonoBehaviour
 
     // --- Public Methods ---
     public bool IsSprinting() => _isSprinting;
+    public bool IsMovingOnGround => _isMovingOnGround;
     
     // --- Private Fields ---
     // --- privates ---
@@ -111,6 +112,8 @@ public class PlayerController : MonoBehaviour
     float _bobTimer;
 
     bool _wasMovingForSteps;
+
+    private bool _isMovingOnGround;
 
     bool _isGrounded;
     float _lastGroundedTime;
@@ -388,6 +391,7 @@ public class PlayerController : MonoBehaviour
         bool canCoyote = (Time.time - _lastGroundedTime) <= CoyoteTime;
         bool functionallyGrounded = _isGrounded || canCoyote;
         bool movingOnGround = functionallyGrounded && horizSpeed > MinStepSpeed && _moveDir.sqrMagnitude > 0.01f;
+        _isMovingOnGround = movingOnGround;
 
         if (!movingOnGround) _stepTimer = 0f;
             else
