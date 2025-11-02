@@ -24,7 +24,6 @@ public class RadioDialogue : MonoBehaviour
 
         _interactAction = new InputAction("Interact");
         _interactAction.AddBinding("<Keyboard>/e");
-        _interactAction.AddBinding("<Gamepad>/buttonSouth");
     }
 
     void OnEnable()  => _interactAction.Enable();
