@@ -13,22 +13,26 @@ public class PlayerShooter : MonoBehaviour
     public float hitScanRadius = 0f;
 
     [Header("Recoil")]
-    public CameraRecoil recoil;           // assign CameraRecoil on your camera
-    public float recoilUp = 1.2f;         // degrees up per shot
-    public float recoilSide = 0.35f;      // max sideways (±) per shot
+    public CameraRecoil recoil;
+    public float recoilUp = 1.2f;
+    public float recoilSide = 0.35f;
 
     [Header("Muzzle Flash")]
-    public Light muzzleLight;             // child light on camera
-    public float flashIntensity = 4f;     // Built-in RP: 2–6 ; URP/HDRP HDR may need 2000–6000
+    public Light muzzleLight;
+    public float flashIntensity = 4f;
     public float flashTime = 0.06f;
 
     [Header("Audio")]
-    public AudioSource shotAudio;         // on camera; Spatial Blend = 0
+    public AudioSource shotAudio;
     public AudioClip shotClip;
     [Range(0f, 0.1f)] public float pitchJitter = 0.03f;
 
+    [Header("Animation")]
+    public Animator gunAnimator;
+    private PlayerController playerController;
+
     [Header("Impact FX")]
-    public GameObject impactFXPrefab;     // short particle puff
+    public GameObject impactFXPrefab;
 
     private InputAction fireAction;
     private float nextFireTime;
@@ -36,10 +40,10 @@ public class PlayerShooter : MonoBehaviour
     void Awake()
     {
         if (!playerCamera) playerCamera = Camera.main;
+        playerController = GetComponentInParent<PlayerController>();
 
         fireAction = new InputAction("Fire");
         fireAction.AddBinding("<Mouse>/leftButton");
-        fireAction.AddBinding("<Gamepad>/rightTrigger");
     }
 
     void OnEnable()  => fireAction.Enable();
@@ -47,7 +51,17 @@ public class PlayerShooter : MonoBehaviour
 
     void Update()
     {
-        // Don't shoot during dialogue (if you use it)
+    if (gunAnimator && playerController)
+    {
+        gunAnimator.SetBool("IsWalking", playerController.IsMovingOnGround);
+
+        bool isSprinting = playerController.IsSprinting();
+
+        float speedMultiplier = (isSprinting) ? 1.6f : 1.0f; 
+
+        gunAnimator.SetFloat("AnimationSpeed", speedMultiplier);
+    }
+            
         if (DialogueController.Instance && DialogueController.Instance.IsActive)
             return;
 
@@ -60,7 +74,11 @@ public class PlayerShooter : MonoBehaviour
 
     void FireOnce()
     {
-        // --- Always-do effects (even if we miss) ---
+        if (gunAnimator)
+        {
+            gunAnimator.SetTrigger("Shoot");
+        }
+        
         DoRecoil();
         DoMuzzleFlash();
         PlayShotAudio();
@@ -111,19 +129,17 @@ public class PlayerShooter : MonoBehaviour
     void DoMuzzleFlash()
     {
         if (!muzzleLight) return;
-        StopCoroutine(nameof(MuzzleFlashRoutine)); // in case of spam
+        StopCoroutine(nameof(MuzzleFlashRoutine));
         StartCoroutine(MuzzleFlashRoutine());
     }
 
     IEnumerator MuzzleFlashRoutine()
     {
-        // pop to full then fade out quickly
         float t = 0f;
         muzzleLight.intensity = flashIntensity;
         while (t < flashTime)
         {
             t += Time.deltaTime;
-            // linear fade; swap to SmoothStep if you want a curve
             float k = 1f - Mathf.Clamp01(t / flashTime);
             muzzleLight.intensity = flashIntensity * k;
             yield return null;

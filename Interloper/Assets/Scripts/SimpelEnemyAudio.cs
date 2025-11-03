@@ -49,7 +49,6 @@ public class SimpleEnemyAudio : MonoBehaviour
             AudioClip clip = ambientClips[Random.Range(0, ambientClips.Length)];
             _source.PlayOneShot(clip, volume);
 
-            // Wait for clip duration + small random delay
             float waitTime = clip.length + Random.Range(minDelay, maxDelay);
             yield return new WaitForSeconds(waitTime);
         }
