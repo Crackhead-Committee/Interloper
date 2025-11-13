@@ -12,6 +12,9 @@ public class PlayerLife : MonoBehaviour
     public float RespawnInvulnTime = 0.75f;
     public TMP_Text healthText;
 
+    [Header("Game Over")]
+    public GameOverUI gameOverUI;
+
     [Header("Respawn")]
     public Transform respawnPoint;
     public float respawnDelay = 0.05f;
@@ -62,7 +65,23 @@ public class PlayerLife : MonoBehaviour
     public void Die()
     {
         if (respawning) return;
-        StartCoroutine(RespawnRoutine());
+        respawning = true;
+
+        if (movement) movement.enabled = false;
+        if (rb)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
+        if (gameOverUI != null)
+        {
+            gameOverUI.ShowGameOver();
+        }
+        else
+        {
+            Debug.LogWarning("PlayerLife: No GameOverUI assigned.");
+        }
     }
 
     IEnumerator RespawnRoutine()

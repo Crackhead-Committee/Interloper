@@ -27,6 +27,9 @@ public class DayNightDirector : MonoBehaviour
     public TMP_Text timerText;
     public TMP_Text firesText;
 
+    [Header("Time / Skybox")]
+    public TimeManager timeManager;
+
     Phase _phase;
     int _dayIndex = 0;
     float _phaseTimer;
@@ -49,29 +52,34 @@ public class DayNightDirector : MonoBehaviour
 
     void Update()
     {
-        // Countdown
         _phaseTimer -= Time.deltaTime;
 
-        // Timer UI
         if (timerText)
         {
-            float t = Mathf.Max(0f, _phaseTimer);
-            int seconds = Mathf.CeilToInt(t);
-            timerText.text = seconds.ToString("0");
+            if (_phase == Phase.Day)
+            {
+                float t = Mathf.Max(0f, _phaseTimer);
+                int seconds = Mathf.CeilToInt(t);
+                timerText.text = seconds.ToString("0");
+            }
+            else
+            {
+                timerText.text = "Put out all fires!";
+            }
         }
 
-        // Phase logic
         if (_phase == Phase.Day)
         {
             if (_phaseTimer <= 0f)
                 StartNight();
         }
-        else // Night
+        else
         {
             if (ActiveFireCount() <= 0)
                 StartDay();
         }
     }
+
 
     // ───────────────────── PHASES ─────────────────────
 
@@ -83,6 +91,8 @@ public class DayNightDirector : MonoBehaviour
 
         DeactivateAllFires();
         ClearEnemies();
+
+        if (timeManager) timeManager.TriggerDay(2f);
 
         Debug.Log($"Day {_dayIndex} started");
 
@@ -98,6 +108,8 @@ public class DayNightDirector : MonoBehaviour
 
         ActivateNightFires();
         SpawnEnemiesForNight();
+
+        if (timeManager) timeManager.TriggerNight(2f);
 
         int burning = ActiveFireCount();
 

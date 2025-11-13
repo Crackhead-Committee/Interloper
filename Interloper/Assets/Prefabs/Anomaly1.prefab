@@ -146,7 +146,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySimpleAI
   target: {fileID: 0}
-  detectRange: 12
+  detectRange: 20
   attackRange: 1.8
   attackCooldown: 1
   hitDelay: 0.6
@@ -162,7 +162,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e0deeb9221c2f94b8cc5d53c9aa73f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Damageable
-  maxHits: 3
+  maxHits: 2
   onDeath:
     m_PersistentCalls:
       m_Calls: []
@@ -270,7 +270,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0

@@ -16,7 +16,9 @@ public class TimeManager : MonoBehaviour
     [SerializeField] private Gradient graddientSunsetToNight;
  
     [SerializeField] private Light globalLight;
- 
+
+    public bool useInternalClock = false;
+
     private int minutes;
  
     public int Minutes
@@ -33,18 +35,20 @@ public class TimeManager : MonoBehaviour
     { get { return days; } set { days = value; } }
  
     private float tempSecond;
- 
+
     public void Update()
     {
+        if (!useInternalClock) return;
+
         tempSecond += Time.deltaTime;
- 
+
         if (tempSecond >= 1)
         {
             Minutes += 1;
             tempSecond = 0;
         }
     }
- 
+
     private void OnMinutesChange(int value)
     {
         globalLight.transform.Rotate(Vector3.up, (1f / (1440f / 4f)) * 360f, Space.World);
@@ -105,5 +109,18 @@ public class TimeManager : MonoBehaviour
             RenderSettings.fogColor = globalLight.color;
             yield return null;
         }
+    }
+    public void TriggerDay(float blendTime = 2f)
+    {
+        StopAllCoroutines();
+        StartCoroutine(LerpSkybox(skyboxSunrise, skyboxDay, blendTime));
+        StartCoroutine(LerpLight(graddientSunriseToDay, blendTime));
+    }
+
+    public void TriggerNight(float blendTime = 2f)
+    {
+        StopAllCoroutines();
+        StartCoroutine(LerpSkybox(skyboxSunset, skyboxNight, blendTime));
+        StartCoroutine(LerpLight(graddientSunsetToNight, blendTime));
     }
 }
